@@ -1,4 +1,13 @@
-.score-number-text {
+@font-face {
+    font-family:"Hind";
+    src: url("fonts/hind.regular.ttf") /* EOT file for IE */
+}
+
+.score-chart {
+  font-family: Hind;
+}
+
+.score-chart .score-number-text {
   font-family: Hind;
   font-size: 46px;
   font-weight: 300;
@@ -6,21 +15,67 @@
   text-anchor: middle;
 }
 
-path.arc {
+.score-chart path.arc {
   stroke-linejoin: round;
 }
 
-path.track {
+.score-chart path.track {
   stroke-width: 2;
   stroke: #D9E5EF;
 }
 
-path.score {
+.score-chart path.score {
   stroke-width: 4;
 }
 
-text.score {
+.score-chart text.score {
   fill: #fff;
   text-anchor: middle;
   font-size: 12px;
+}
+
+.score-chart text.left {
+  text-anchor: end;
+}
+
+.score-chart text.right {
+  text-anchor: start;
+}
+
+.score-chart .score-title {
+  text-transform: uppercase;
+}
+
+.score-chart .fixed-score {
+  fill: #69D9AB;
+}
+
+.score-chart .flexible-score {
+  fill: #FB738B;
+}
+
+.score-chart .savings-score {
+  fill: #67B9F6;
+}
+
+.score-chart .score-label {
+  fill: #B8CBDC;
+  font-size: 14px;
+}
+
+.score-chart .score-widget-headline {
+  padding-top: 10px;
+	font-size: 28px;
+	font-weight: 300;
+	color: rgba(64,72,98,1);
+  text-align: center;
+}
+
+.score-chart .score-widget-text {
+  padding-top: 10px;
+	font-size: 15px;
+	line-height: 1.8;
+	color: rgba(148,166,189,1);
+  text-align: center;
+  padding: 0 60px;
 }

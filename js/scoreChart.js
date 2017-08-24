@@ -18,10 +18,6 @@ class ScoreChart {
     this._outerRadius = 67;
     this._arcsGap = 9;
     this._arcsData = [{
-      from: 180,
-      to: 360,
-      domain: [0, 50]
-    }, {
       from: 0,
       to: 90,
       domain: [0, 30]
@@ -29,6 +25,10 @@ class ScoreChart {
       from: 90,
       to: 180,
       domain: [0, 20]
+    }, {
+      from: 180,
+      to: 360,
+      domain: [0, 50]
     }].map(function(d) {
       d.from += this._arcsGap;
       d.to -= this._arcsGap;
@@ -37,13 +37,13 @@ class ScoreChart {
 
     this._scoresData = [{
       color: '#FB738B',
-      to: this._dataSet.fixedScore
-    }, {
-      color: '#67B9F6',
       to: this._dataSet.flexibleScore
     }, {
-      color: '#69D9AB',
+      color: '#67B9F6',
       to: this._dataSet.savingsScore
+    }, {
+      color: '#69D9AB',
+      to: this._dataSet.fixedScore
     }].map(function(d, i) {
       d.from = this._arcsData[i].from;
       return d;
@@ -82,8 +82,8 @@ class ScoreChart {
    */
   renderTo(selector) {
 
-    this._container = d3.select(selector);
-    this._container.selectAll('*').remove();
+    this._container = d3.select(selector)
+      .classed('score-chart', true);
 
     const box = this._container.node().getBoundingClientRect();
 
@@ -148,6 +148,65 @@ class ScoreChart {
       .attr('dy', '0.3em')
       .text(d => d.to);
 
+    this._fixedTooltip = this._canvas
+      .append('g');
+    this._fixedText = this._fixedTooltip
+      .selectAll('text')
+      .data([['fixed'], [this._dataSet.fixedScore, '/50', ' points']])
+      .enter()
+      .append('text')
+      .attr('class', (d, i) => i == 0 ? 'left score-title fixed-score' : 'left')
+      .attr('dy', '0.3em');
+    this._fixedText.selectAll('tspan')
+      .data(function(d, i) {
+        return d;
+      }).enter()
+      .append('tspan')
+      .attr('class', (d, i) => i == 0 ? 'score-title fixed-score' : 'score-label')
+      .text(String);
+
+    this._flexibleTooltip = this._canvas
+      .append('g');
+    this._flexibleText = this._flexibleTooltip
+      .selectAll('text')
+      .data([['flexible'], [this._dataSet.flexibleScore, '/30', ' points']])
+      .enter()
+      .append('text')
+      .attr('class', (d, i) => i == 0 ? 'right score-title flexible-score' : 'right')
+      .attr('dy', '0.3em');
+    this._flexibleText.selectAll('tspan')
+      .data(function(d, i) {
+        return d;
+      }).enter()
+      .append('tspan')
+      .attr('class', (d, i) => i == 0 ? 'score-title flexible-score' : 'score-label')
+      .text(String);
+
+    this._savingsTooltip = this._canvas
+      .append('g');
+    this._savingsText = this._savingsTooltip
+      .selectAll('text')
+      .data([['net-worth'], [this._dataSet.savingsScore, '/20', ' points']])
+      .enter()
+      .append('text')
+      .attr('class', (d, i) => i == 0 ? 'right score-title savings-score' : 'right')
+      .attr('dy', '0.3em');
+    this._savingsText.selectAll('tspan')
+      .data(function(d, i) {
+        return d;
+      }).enter()
+      .append('tspan')
+      .attr('class', (d, i) => i == 0 ? 'score-title savings-score' : 'score-label')
+      .text(String);
+
+    this._container
+      .selectAll('div')
+      .data(['Your Medean Score', 'Keep an eye on your flexible expenses, which seems to be your weekest point 😅'])
+      .enter()
+      .append('div')
+      .attr('class', (d, i) => i == 0 ? 'score-widget-headline' : 'score-widget-text')
+      .text(String)
+
     return this.update();
   }
 
@@ -172,6 +231,7 @@ class ScoreChart {
 
     this._svg
       .attr('width', this.getOuterWidth())
+      .attr('height', 220);
 
     const margin = this._getMargin();
     const center = {
@@ -223,6 +283,18 @@ class ScoreChart {
           center.y + this._outerRadius * Math.sin(this._toRadians(this._scaleValue(d.to, this._arcsData[i]) - 90))] +
         ')';
       }.bind(this));
+
+      this._fixedText
+        .attr('x', 110)
+        .attr('y', (d, i) => 100 + 20 * i);
+
+      this._flexibleText
+        .attr('x', 310)
+        .attr('y', (d, i) => 60 + 20 * i);
+
+      this._savingsText
+        .attr('x', 310)
+        .attr('y', (d, i) => 145 + 20 * i);
 
     return this;
   }
