@@ -15,6 +15,7 @@ class ScoreChart {
 
     this._dataSet = dataSet;
 
+    this._duration = 1000;
     this._outerRadius = 67;
     this._arcsGap = 9;
     this._arcsData = [{
@@ -113,7 +114,7 @@ class ScoreChart {
       .append('text')
       .attr('class', 'score-number-text')
       .attr('dy', '0.3em')
-      .text(this._dataSet.score);
+      .text(0);
 
     this._bgArcs = this._canvas
       .selectAll('path.track')
@@ -146,10 +147,11 @@ class ScoreChart {
       .append('text')
       .attr('class', 'score')
       .attr('dy', '0.3em')
-      .text(d => d.to);
+      .text(0);
 
     this._fixedTooltip = this._canvas
-      .append('g');
+      .append('g')
+      .attr('class', 'tooltip');
     this._fixedText = this._fixedTooltip
       .selectAll('text')
       .data([['fixed'], [this._dataSet.fixedScore, '/50', ' points']])
@@ -166,7 +168,8 @@ class ScoreChart {
       .text(String);
 
     this._flexibleTooltip = this._canvas
-      .append('g');
+      .append('g')
+      .attr('class', 'tooltip');
     this._flexibleText = this._flexibleTooltip
       .selectAll('text')
       .data([['flexible'], [this._dataSet.flexibleScore, '/30', ' points']])
@@ -183,7 +186,8 @@ class ScoreChart {
       .text(String);
 
     this._savingsTooltip = this._canvas
-      .append('g');
+      .append('g')
+      .attr('class', 'tooltip');
     this._savingsText = this._savingsTooltip
       .selectAll('text')
       .data([['net-worth'], [this._dataSet.savingsScore, '/20', ' points']])
@@ -217,6 +221,73 @@ class ScoreChart {
    * @returns {ScoreChart}
    */
   update() {
+
+    var interpolator = d3.interpolate(0, this._dataSet.score);
+
+    this._score
+      .transition()
+      .ease(d3.easeLinear)
+      .duration(1000)
+      .tween('text', function(d, i, selection) {
+        return function(t) {
+          d3.select(this).text(parseInt(interpolator(t), 10));
+        }.bind(this);
+      });
+
+      this._scoreValues
+        .transition()
+        .ease(d3.easeLinear)
+        .duration(1000)
+        .tween('text', function(d, i, selection) {
+          var interpolator = d3.interpolate(0, d.to);
+          return function(t) {
+            d3.select(this).text(parseInt(interpolator(t), 10));
+          }.bind(this);
+        });
+
+    // this._canvas
+    //   .selectAll('g.tooltip')
+    //   .selectAll('text')
+    //   .filter((d, i) => i == 1)
+    //   .select('tspan')
+    //   .transition()
+    //   .ease(d3.easeLinear)
+    //   .duration(1000)
+    //   .tween('text', function(d, i, selection) {
+    //     var interpolator = d3.interpolate(0, d[0]);
+    //     return function(t) {
+    //       d3.select(this).text(parseInt(interpolator(t), 10));
+    //     }.bind(this);
+    //   });
+
+    var self = this;
+    const center = {
+      x: this.getInnerWidth() / 2,
+      y: 220 / 2
+    }
+
+    this._scores
+      .attr('transform', function(d, i) {
+        return 'translate(' + [
+          center.x + this._outerRadius * Math.cos(this._toRadians(d.from - 90)),
+          center.y + this._outerRadius * Math.sin(this._toRadians(d.from - 90))] +
+        ')';
+      }.bind(this))
+      .transition()
+      .ease(d3.easeLinear)
+      .duration(1000)
+      .tween('text', function(d, i, selection) {
+        var f = d3.interpolate(d.from - 90, self._scaleValue(d.to, self._arcsData[i]) - 90);
+        return function(t) {
+          d3.select(this)
+            .attr('transform', function(d, i) {
+              return 'translate(' + [
+                center.x + self._outerRadius * Math.cos(self._toRadians(f(t))),
+                center.y + self._outerRadius * Math.sin(self._toRadians(f(t)))] +
+              ')';
+            }.bind(this));
+        }.bind(this);
+      });
 
     return this.resize();
   }
@@ -274,14 +345,6 @@ class ScoreChart {
             .endAngle(this._toRadians(this._scaleValue(d.to, this._arcsData[i])))
             .outerRadius(this._outerRadius)
             .innerRadius(this._outerRadius)();
-      }.bind(this));
-
-    this._scores
-      .attr('transform', function(d, i) {
-        return 'translate(' + [
-          center.x + this._outerRadius * Math.cos(this._toRadians(this._scaleValue(d.to, this._arcsData[i]) - 90)),
-          center.y + this._outerRadius * Math.sin(this._toRadians(this._scaleValue(d.to, this._arcsData[i]) - 90))] +
-        ')';
       }.bind(this));
 
       this._fixedText
