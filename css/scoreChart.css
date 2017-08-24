@@ -1,0 +1,26 @@
+.score-number-text {
+  font-family: Hind;
+  font-size: 46px;
+  font-weight: 300;
+  fill: rgba(255,255,255,1);
+  text-anchor: middle;
+}
+
+path.arc {
+  stroke-linejoin: round;
+}
+
+path.track {
+  stroke-width: 2;
+  stroke: #D9E5EF;
+}
+
+path.score {
+  stroke-width: 4;
+}
+
+text.score {
+  fill: #fff;
+  text-anchor: middle;
+  font-size: 12px;
+}
